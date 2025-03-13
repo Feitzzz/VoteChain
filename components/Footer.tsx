@@ -1,24 +1,18 @@
 import React from 'react'
-import { FaGithub, FaLinkedinIn, FaTwitter, FaYoutube } from 'react-icons/fa'
 
 const Footer = () => {
   return (
-    <footer
-      className="w-full h-[192px] py-[37px]
-      rounded-t-[24px] flex flex-col items-center justify-center
-      bg-white bg-opacity-20 px-5"
-    >
-      <div className="flex justify-center items-center space-x-4">
-        <FaLinkedinIn size={27} />
-        <FaYoutube size={27} />
-        <FaGithub size={27} />
-        <FaTwitter size={27} />
+    <footer className="container px-4 py-6 mx-auto mt-8 border-t border-dark-700 sm:py-8 sm:mt-12">
+      <div className="flex flex-col items-center justify-between gap-3 text-center sm:gap-4 md:flex-row md:text-left">
+        <div className="flex items-center text-lg font-medium sm:text-xl">
+          <span className="text-primary-500">Vote</span>
+          <span className="font-bold text-white">Chain</span>
+        </div>
+        
+        <p className="text-xs sm:text-sm text-dark-400">
+          &copy; {new Date().getFullYear()} VoteChain. All rights reserved.
+        </p>
       </div>
-
-      <hr className="w-full sm:w-[450px] border-t border-gray-400 mt-3" />
-
-      <p className="text-sm font-[500px] mt-5">©️{new Date().getFullYear()}</p>
-      <p className="text-sm font-[500px]">With Love ❤️ by Daltonic</p>
     </footer>
   )
 }

@@ -1,0 +1,284 @@
+@startuml VoteChain Sequence Diagram
+
+!theme plain
+scale 2.0
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+
+' Increase font sizes
+skinparam defaultFontSize 16
+skinparam actorFontSize 20
+skinparam participantFontSize 20
+skinparam databaseFontSize 20
+skinparam arrowFontSize 16
+skinparam noteFontSize 16
+
+' Improve spacing and readability
+skinparam sequenceParticipant {
+    padding 30
+    boxPadding 15
+}
+
+skinparam sequenceBox {
+    padding 15
+    backgroundColor #f5f5f5
+    borderColor #d9d9d9
+}
+
+skinparam sequenceGroupBackgroundColor #f9f9f9
+skinparam sequenceGroupBodyBackgroundColor #fdfdfd
+skinparam sequenceGroupBorderColor #d0d0d0
+skinparam sequenceGroupBorderThickness 2
+
+skinparam sequenceMessageAlign center
+skinparam sequenceArrowThickness 2
+skinparam sequenceLifeLineBorderColor black
+skinparam sequenceLifeLineBackgroundColor white
+
+' Participants with descriptive names and distinct colors
+actor "User" as user #d4e9ff
+participant "VoteChain\nFrontend" as frontend #d4ffdb
+participant "Web3 Provider\n(MetaMask)" as metamask #fff7d4
+participant "Smart Contract\n(VoteChain.sol)" as contract #ffd4e2
+database "Blockchain" as blockchain #e0e0e0
+database "MongoDB" as mongodb #d4f1ff
+
+title <font size=24><b>VoteChain System Sequence Diagram</b></font>
+
+' Authentication Sequence
+group <b>User Authentication</b>
+    user -> frontend: Visit application
+    activate frontend
+    frontend -> user: Display UI with login/register options
+    deactivate frontend
+    
+    note over user, frontend #e6f7ff
+      <b>Registration Process</b>
+    end note
+    
+    user -> frontend: Navigate to registration page
+    activate frontend
+    frontend -> user: Display registration form
+    deactivate frontend
+    
+    user -> frontend: Submit registration details\n(name, email, nationalId, password)
+    activate frontend
+    frontend -> mongodb: Register user
+    activate mongodb
+    mongodb -> mongodb: Hash password and nationalId
+    mongodb -> mongodb: Store user information
+    mongodb -> frontend: Return registration success
+    deactivate mongodb
+    frontend -> mongodb: Request OTP generation
+    activate mongodb
+    mongodb -> mongodb: Generate OTP
+    mongodb -> frontend: Return OTP success
+    deactivate mongodb
+    frontend -> user: Display OTP verification page
+    deactivate frontend
+    
+    user -> frontend: Enter OTP
+    activate frontend
+    frontend -> mongodb: Verify OTP
+    activate mongodb
+    mongodb -> mongodb: Validate OTP
+    mongodb -> frontend: Confirm verification
+    deactivate mongodb
+    frontend -> user: Display verification success
+    deactivate frontend
+    
+    note over user, frontend #e6f7ff
+      <b>Login Process</b>
+    end note
+    
+    user -> frontend: Navigate to login page
+    activate frontend
+    frontend -> user: Display login form
+    deactivate frontend
+    
+    user -> frontend: Submit login credentials\n(email, password)
+    activate frontend
+    frontend -> mongodb: Authenticate user
+    activate mongodb
+    mongodb -> mongodb: Verify credentials
+    mongodb -> frontend: Authentication result
+    deactivate mongodb
+    alt Authentication successful
+        frontend -> user: Display logged-in UI
+    else Authentication failed
+        frontend -> user: Display error message
+    end
+    deactivate frontend
+end
+
+' Connect Wallet Sequence
+group <b>Connect Wallet</b>
+    user -> frontend: Click "Connect Wallet"
+    activate frontend
+    frontend -> metamask: Request connection
+    activate metamask
+    metamask -> user: Prompt for wallet connection
+    
+    user -> metamask: Approve connection
+    metamask -> frontend: Return account address
+    deactivate metamask
+    frontend -> user: Display connected status
+    deactivate frontend
+    
+    note right of user #f0fff0
+      User must connect wallet to
+      interact with blockchain
+    end note
+end
+
+' Create Poll Sequence
+group <b>Create Poll</b>
+    user -> frontend: Open create poll form
+    activate frontend
+    frontend -> user: Display poll form
+    deactivate frontend
+    
+    user -> frontend: Submit poll details\n(title, description, image, dates)
+    activate frontend
+    frontend -> metamask: Create transaction for createPoll()
+    activate metamask
+    metamask -> user: Request transaction approval
+    
+    user -> metamask: Confirm transaction
+    metamask -> contract: Execute createPoll()
+    deactivate metamask
+    activate contract
+    contract -> blockchain: Store poll data
+    activate blockchain
+    blockchain --> contract: Transaction confirmed
+    deactivate blockchain
+    contract --> frontend: Return success status
+    deactivate contract
+    frontend -> user: Display poll created confirmation
+    deactivate frontend
+    
+    note right of blockchain #ffeeee
+      Poll data stored permanently
+      on blockchain
+    end note
+end
+
+' Register as Contestant Sequence
+group <b>Register as Contestant</b>
+    user -> frontend: Navigate to poll details
+    activate frontend
+    frontend -> contract: getPoll(id)
+    activate contract
+    contract --> frontend: Return poll details
+    deactivate contract
+    frontend -> user: Display poll details
+    deactivate frontend
+    
+    user -> frontend: Click "Register as contestant"
+    activate frontend
+    frontend -> user: Display contestant form
+    deactivate frontend
+    
+    user -> frontend: Submit contestant details\n(name, image)
+    activate frontend
+    frontend -> metamask: Create transaction for contest()
+    activate metamask
+    metamask -> user: Request transaction approval
+    
+    user -> metamask: Confirm transaction
+    metamask -> contract: Execute contest()
+    deactivate metamask
+    activate contract
+    contract -> blockchain: Store contestant data
+    activate blockchain
+    blockchain --> contract: Transaction confirmed
+    deactivate blockchain
+    contract --> frontend: Return success status
+    deactivate contract
+    frontend -> user: Display registration confirmation
+    deactivate frontend
+end
+
+' Vote Sequence
+group <b>Vote in Poll</b>
+    user -> frontend: Navigate to poll details
+    activate frontend
+    frontend -> contract: getPoll(id)
+    activate contract
+    contract --> frontend: Return poll details
+    deactivate contract
+    frontend -> contract: getContestants(id)
+    activate contract
+    contract --> frontend: Return contestants list
+    deactivate contract
+    frontend -> user: Display poll with contestants
+    deactivate frontend
+    
+    user -> frontend: Select contestant and click "Vote"
+    activate frontend
+    frontend -> metamask: Create transaction for vote()
+    activate metamask
+    metamask -> user: Request transaction approval
+    
+    user -> metamask: Confirm transaction
+    metamask -> contract: Execute vote(pollId, contestantId)
+    deactivate metamask
+    activate contract
+    contract -> blockchain: Record vote
+    activate blockchain
+    blockchain --> contract: Transaction confirmed
+    deactivate blockchain
+    contract --> frontend: Return success status
+    deactivate contract
+    frontend -> user: Display vote confirmation
+    deactivate frontend
+    
+    note right of blockchain #e6f7ff
+      Votes are immutable once recorded
+      on the blockchain
+    end note
+end
+
+' View Transactions Sequence
+group <b>View & Search Transactions</b>
+    note over user, blockchain #fff0e6
+      <b>Transaction History Management</b>
+    end note
+    
+    user -> frontend: Navigate to transactions page
+    activate frontend
+    frontend -> blockchain: Request transaction history
+    activate blockchain
+    blockchain --> frontend: Return transaction data
+    deactivate blockchain
+    frontend -> user: Display transaction list
+    deactivate frontend
+    
+    user -> frontend: Enter address in search box
+    activate frontend
+    frontend -> user: Display search UI
+    deactivate frontend
+    
+    user -> frontend: Submit search
+    activate frontend
+    frontend -> blockchain: Query transactions by address
+    activate blockchain
+    blockchain --> frontend: Return filtered transactions
+    deactivate blockchain
+    frontend -> user: Display filtered transaction results
+    deactivate frontend
+    
+    user -> frontend: Click transaction hash
+    activate frontend
+    frontend -> user: Open block explorer in new tab
+    deactivate frontend
+    
+    note right of user #f0e6ff
+      Users can verify all blockchain 
+      transactions for transparency
+    end note
+end
+
+footer <font size=14>VoteChain System - Sequence Diagram - Page %page% of %lastpage%</font>
+
+@enduml 

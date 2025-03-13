@@ -5,11 +5,13 @@ import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { FaTimes } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
+import { useRouter } from 'next/router'
 
 const UpdatePoll: React.FC<{ pollData: PollStruct }> = ({ pollData }) => {
   const dispatch = useDispatch()
   const { setUpdateModal } = globalActions
   const { wallet, updateModal } = useSelector((states: RootState) => states.globalStates)
+  const router = useRouter()
 
   const [poll, setPoll] = useState<PollParams>({
     image: '',
@@ -41,22 +43,22 @@ const UpdatePoll: React.FC<{ pollData: PollStruct }> = ({ pollData }) => {
     poll.startsAt = new Date(poll.startsAt).getTime()
     poll.endsAt = new Date(poll.endsAt).getTime()
 
-    await toast.promise(
-      new Promise<void>((resolve, reject) => {
-        updatePoll(pollData.id, poll)
-          .then((tx) => {
-            closeModal()
-            console.log(tx)
-            resolve(tx)
-          })
-          .catch((error) => reject(error))
-      }),
-      {
-        pending: 'Approve transaction...',
-        success: 'Poll updated successfully 👌',
-        error: 'Encountered error 🤯',
-      }
-    )
+    try {
+      await toast.promise(
+        updatePoll(pollData.id, poll),
+        {
+          pending: 'Approve transaction...',
+          success: 'Poll updated successfully 👌',
+          error: 'Encountered error 🤯',
+        }
+      )
+      
+      closeModal()
+      // Use router.replace to force a fresh data fetch
+      router.replace(router.asPath)
+    } catch (error) {
+      console.error('Update failed:', error)
+    }
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

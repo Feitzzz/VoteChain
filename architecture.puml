@@ -1,0 +1,31 @@
+@startuml DappVote Three-Tier System Architecture
+
+actor User
+
+package "Presentation Layer" {
+  [Next.js UI]
+}
+
+package "Logic Layer" {
+  [Authentication Service]
+  [Blockchain Service]
+}
+
+package "Database Layer" {
+  database "MongoDB" {
+    [User Data]
+  }
+  
+  database "Blockchain" {
+    [DappVotes Smart Contract]
+  }
+}
+
+' Core interactions with correct data flow
+User --> [Next.js UI] : Interacts
+[Next.js UI] --> [Authentication Service] : Auth Requests
+[Next.js UI] --> [Blockchain Service] : Vote Operations
+[Authentication Service] --> [User Data] : Validates/Stores
+[Blockchain Service] --> [DappVotes Smart Contract] : Executes Transactions
+
+@enduml 

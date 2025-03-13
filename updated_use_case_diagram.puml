@@ -1,0 +1,80 @@
+@startuml DappVote Use Case Diagram
+
+left to right direction
+
+' Actors on the left
+actor "User" as user
+actor "Poll Director" as director
+actor "Contestant" as contestant
+actor "Voter" as voter
+
+' System boundary - vertical orientation
+rectangle "DappVote System" {
+  ' Original use cases
+  usecase "Browse Polls" as UC1
+  usecase "View Poll Details" as UC2
+  usecase "Create Poll" as UC3
+  usecase "Update Poll" as UC4
+  usecase "Delete Poll" as UC5
+  usecase "Register as Contestant" as UC6
+  usecase "Vote in Poll" as UC7
+  usecase "Connect Wallet" as UC8
+  
+  ' New authentication use cases
+  usecase "Register Account" as UC9
+  usecase "Login" as UC10
+  usecase "Verify OTP" as UC11
+  
+  ' New transaction viewing/searching use cases
+  usecase "View Transactions" as UC12
+  usecase "Search Transactions by Address" as UC13
+}
+
+' Actor relationships
+user <|-- director
+user <|-- contestant
+user <|-- voter
+
+' User associations
+user --> UC1
+user --> UC2
+user --> UC8
+user --> UC9
+user --> UC10
+user --> UC11
+user --> UC12
+user --> UC13
+
+' Poll Director associations
+director --> UC3
+director --> UC4
+director --> UC5
+
+' Contestant associations
+contestant --> UC6
+
+' Voter associations
+voter --> UC7
+
+' Include relationships
+UC3 ..> UC8 : <<include>>
+UC4 ..> UC8 : <<include>>
+UC5 ..> UC8 : <<include>>
+UC6 ..> UC8 : <<include>>
+UC7 ..> UC8 : <<include>>
+
+' Authentication flow relationships
+UC9 ..> UC11 : <<include>>
+UC10 ..> UC11 : <<include>>
+
+' User verification for certain actions
+UC3 ..> UC10 : <<include>>
+UC4 ..> UC10 : <<include>>
+UC5 ..> UC10 : <<include>>
+UC6 ..> UC10 : <<include>>
+UC7 ..> UC10 : <<include>>
+
+' Search is part of View Transactions
+UC13 ..> UC12 : <<include>>
+
+@enduml 

@@ -16,23 +16,23 @@ const DeletePoll: React.FC<{ poll: PollStruct }> = ({ poll }) => {
 
   const handleDelete = async () => {
     if (wallet === '') return toast.warning('Connect wallet first!')
-    await toast.promise(
-      new Promise<void>((resolve, reject) => {
-        deletePoll(poll.id)
-          .then((tx) => {
-            closeModal()
-            console.log(tx)
-            router.push('/')
-            resolve(tx)
-          })
-          .catch((error) => reject(error))
-      }),
-      {
-        pending: 'Approve transaction...',
-        success: 'Poll deleted successfully 👌',
-        error: 'Encountered error 🤯',
-      }
-    )
+    
+    try {
+      await toast.promise(
+        deletePoll(poll.id),
+        {
+          pending: 'Approve transaction...',
+          success: 'Poll deleted successfully 👌',
+          error: 'Encountered error 🤯',
+        }
+      )
+      
+      closeModal()
+      // Use router.replace instead of push to force a fresh data fetch
+      router.replace('/')
+    } catch (error) {
+      console.error('Delete failed:', error)
+    }
   }
 
   const closeModal = () => {

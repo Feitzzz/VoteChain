@@ -6,26 +6,34 @@ import React from 'react'
 
 const Polls: React.FC<{ polls: PollStruct[] }> = ({ polls }) => {
   return (
-    <div>
-      <h1 className="text-center text-[34px] font-[550px] mb-5">Start Voting</h1>
+    <div className="container max-w-6xl px-4 py-8 mx-auto sm:py-12">
+      <h2 className="mb-6 text-2xl font-bold text-center text-white sm:mb-8 sm:text-3xl md:text-4xl">
+        Available Polls
+      </h2>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 pb-7 gap-[62px] sm:w-2/3 xl:w-5/6 mx-auto">
-        {polls.map((poll, i) => (
-          <Poll key={i} poll={poll} />
-        ))}
-      </div>
+      {polls.length === 0 ? (
+        <div className="p-6 text-center sm:p-8 card">
+          <p className="text-base sm:text-lg text-dark-200">No polls available at the moment.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:gap-8 md:grid-cols-2">
+          {polls.map((poll, i) => (
+            <Poll key={i} poll={poll} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
+
 const Poll: React.FC<{ poll: PollStruct }> = ({ poll }) => {
   const navigate = useRouter()
+  
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 mx-auto w-full">
-      <div
-        className="h-[392px] gap-[10px] md:w-[580px] md:h-[280px]
-            grid grid-cols-1 md:flex justify-start w-full"
-      >
-        <div className="w-full flex justify-between space-y-0 sm:space-y-2 sm:flex-col md:w-[217px]">
+    <div className="overflow-hidden transition-all duration-300 card hover:transform hover:scale-[1.02]">
+      <div className="flex flex-col sm:flex-row">
+        {/* Poll Images */}
+        <div className="grid w-full grid-cols-2 gap-2 p-3 sm:w-2/5 md:w-1/3">
           {[...poll.avatars, '/assets/images/question.jpeg', '/assets/images/question.jpeg']
             .slice(0, 2)
             .map((avatar, i) => (
@@ -33,44 +41,43 @@ const Poll: React.FC<{ poll: PollStruct }> = ({ poll }) => {
                 key={i}
                 src={avatar}
                 alt={poll.title}
-                className="w-[160px] md:w-full
-                h-[135px] rounded-[20px] object-cover"
+                className="object-cover w-full rounded-lg aspect-square"
               />
             ))}
         </div>
-
-        <div
-          className="w-full h-[257px] gap-[14px] rounded-[24px] space-y-5
-                md:w-[352px] md:h-[280px] bg-[#151515] px-[15px] py-[18px] md:px-[22px]"
-        >
-          <h1 className="text-[18px] font-[600px] capitalize">
-            {truncate({ text: poll.title, startChars: 30, endChars: 0, maxLength: 33 })}
-          </h1>
-          <p className="text-[14px] font-[400px]">
-            {truncate({ text: poll.description, startChars: 104, endChars: 0, maxLength: 107 })}
+        
+        {/* Poll Content */}
+        <div className="flex flex-col flex-1 p-4 sm:p-5">
+          <h3 className="mb-1 text-lg font-semibold capitalize truncate sm:text-xl">
+            {poll.title}
+          </h3>
+          
+          <p className="mb-3 text-xs text-dark-300 line-clamp-2 sm:text-sm sm:mb-4">
+            {poll.description}
           </p>
-
-          <div className="flex justify-between items-center gap-[8px]">
-            <div
-              className="h-[26px] bg-[#2c2c2c] rounded-full py-[4px] px-[12px]
-                text-[12px] font-[400px]"
-            >
+          
+          <div className="flex flex-wrap items-center justify-between mt-auto gap-y-2">
+            <div className="px-2 py-1 text-xs font-medium rounded-full bg-dark-700 text-primary-300 sm:px-3">
               {formatDate(poll.startsAt)}
             </div>
-
-            <div className="h-[32px] w-[119px] gap-[5px] flex items-center">
-              <div className="h-[32px] w-[32px] rounded-full bg-[#2c2c2c]" />
-              <p className="text-[12px] font-[400px]">
+            
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="flex items-center justify-center w-5 h-5 rounded-full sm:w-6 sm:h-6 bg-primary-900">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-primary-300" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <span className="text-xs text-dark-300">
                 {truncate({ text: poll.director, startChars: 4, endChars: 4, maxLength: 11 })}
-              </p>
+              </span>
             </div>
           </div>
-
+          
           <button
             onClick={() => navigate.push('/polls/' + poll.id)}
-            className="h-[44px] w-full rounded-full transition-all duration-300 bg-[#1B5CFE] hover:bg-blue-500"
+            className="w-full px-3 py-1.5 mt-3 text-sm font-medium text-white transition-all duration-200 rounded-lg sm:px-4 sm:py-2 sm:mt-4 bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 focus:ring-offset-dark-900"
           >
-            Enter
+            Enter Poll
           </button>
         </div>
       </div>

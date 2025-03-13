@@ -50,8 +50,29 @@ export interface GlobalState {
   group: PollStruct | null
   contestants: ContestantStruct[]
   currentUser: PollStruct | null
+  isVoting: boolean
 }
 
 export interface RootState {
   globalStates: GlobalState
+}
+
+export interface TransactionData {
+  hash: string
+  blockNumber: number
+  timestamp: number
+  from: string
+  to: string
+  transactionType: string
+  status: boolean
+  gasUsed: string
+  gasPrice: string
+  value: string
+}
+
+export interface TransactionFilters {
+  type?: string
+  address?: string
+  startDate?: number
+  endDate?: number
 }
