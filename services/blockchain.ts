@@ -188,10 +188,12 @@ const getEthereumContract = async () => {
     const contract = new ethers.Contract(ContractAddress, ContractAbi, signer)
     
     // Check if the contract exists at the address
+    // Use localhost provider to check deployment since contract is deployed on Hardhat localhost
+    // This ensures we check the correct network regardless of MetaMask connection
     try {
-      // A simple way to check if contract exists is to call a view function
-      // This will throw if the contract doesn't exist
-      const code = await provider.getCode(ContractAddress)
+      const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || process.env.NEXT_APP_RPC_URL || 'http://localhost:8545'
+      const localhostProvider = new ethers.providers.JsonRpcProvider(rpcUrl)
+      const code = await localhostProvider.getCode(ContractAddress)
       if (code === '0x') {
         console.error('Contract not deployed at the specified address. Please deploy the contract first.')
         reportError('Smart contract not deployed. Please deploy the contract or check your connection.', ErrorTypes.CONNECTION)
@@ -219,9 +221,11 @@ const isContractDeployed = async () => {
       return true
     }
     
-    if (!ethereum) return false
+    // Use localhost provider to check deployment since contract is deployed on Hardhat localhost
+    // This ensures we check the correct network regardless of MetaMask connection
+    const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || process.env.NEXT_APP_RPC_URL || 'http://localhost:8545'
+    const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
     
-    const provider = new ethers.providers.Web3Provider(ethereum)
     const code = await provider.getCode(ContractAddress)
     return code !== '0x'
   } catch (error) {

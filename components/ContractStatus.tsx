@@ -16,14 +16,11 @@ const ContractStatus = () => {
       try {
         setIsLoading(true)
         
-        // Get the provider
-        const ethereum = (window as any).ethereum
-        if (!ethereum) {
-          setIsDeployed(false)
-          return
-        }
+        // Use localhost provider to check deployment since contract is deployed on Hardhat localhost
+        // This ensures we check the correct network regardless of MetaMask connection
+        const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || 'http://localhost:8545'
+        const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
         
-        const provider = new ethers.providers.Web3Provider(ethereum)
         const code = await provider.getCode(contractAddress.address)
         const deployed = code !== '0x'
         

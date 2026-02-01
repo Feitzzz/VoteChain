@@ -33,3 +33,23 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# hardhat
+/cache
+/artifacts
+/typechain-types
+
+# misc build outputs
+metrics_output
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
